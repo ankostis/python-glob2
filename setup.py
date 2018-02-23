@@ -19,6 +19,10 @@ else:
     raise Exception("Cannot find version in __init__.py")
 fp.close()
 
+test_requirements = [
+    'pytest',
+    'pytest-runner',
+]
 
 setup(
     name = 'glob2',
@@ -39,6 +43,9 @@ setup(
         'Topic :: Software Development :: Libraries',
         ],
     packages = find_packages(),
+    extras_require={
+        'test': test_requirements,
+    },
     options={
         'bdist_wheel': {
             'universal': True,
