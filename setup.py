@@ -38,5 +38,12 @@ setup(
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries',
         ],
-    packages = find_packages()
+    packages = find_packages(),
+    options={
+        'bdist_wheel': {
+            'universal': True,
+        },
+    },
+    platforms=['any'],
+    zip_safe=True,
 )

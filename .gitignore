@@ -4,6 +4,8 @@
 # distutils/setuptools
 /dist/
 *egg-info
+/build/
+.*cache*
 
 # IDEs
 *.wpr
