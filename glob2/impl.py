@@ -45,38 +45,82 @@ class Globber(object):
                 for x in self.walk(new_path, followlinks):
                     yield x
 
-    def glob(self, pathname, with_matches=False, include_hidden=False, recursive=True,
-             norm_paths=True, case_sensitive=True, sep=None):
+    def glob(self, pathname, with_matches=False, include_hidden=False,
+             recursive=True, norm_paths=True, case_sensitive=True, sep=None):
         """Return a list of paths matching a pathname pattern.
 
-        The pattern may contain simple shell-style wildcards a la
-        fnmatch. However, unlike fnmatch, filenames starting with a
-        dot are special cases that are not matched by '*' and '?'
-        patterns.
+        :param pathname:
+            A string/byte pattern that may contain
+            simple shell-style wildcards a la fnmatch.
+        :param  with_matches:
+            if true, then for each matching path a 2-tuple will be returned;
+            the second element if the tuple will be a list of the parts
+            of the path that matched the individual wildcards.
+        :param include_hidden:
+            When true, filenames starting with a dot are matched by '*' and '?'
+            patterns.
+        :param recursive:
+            ignored, always implied; for API compatibility
+        :param norm_paths:
+            A tri-state boolean:
+            when true, invokes `os.path,.normcase()` on both paths,
+            when `None`, just equalize slashes/backslashes to `os.sep`,
+            when false, does not touch paths at all.
 
-        If ``include_hidden`` is True, then files and folders starting with
-        a dot are also returned.
+            Note that a side-effect of `normcase()` on *Windows* is that
+            it converts to lower-case all matches of `?glob()` functions.
+        :param case_sensitive:
+            defines the case-sensitiviness of regex doing the matches
+        :param sep:
+            in case only slahes replaced, what sep-char to substitute with;
+            if false, `os.sep` is used.
+        :return:
+            strings or bytes, depending on the `patterns
+
+        Notice that by default, `normcase()` causes insensitive matching
+        on *Windows*, regardless of `case_insensitive` param.
+        Set ``norm_paths=None, case_sensitive=False`` to preserve
+        verbatim mathces.
         """
         return list(self.iglob(pathname, with_matches, include_hidden,
                                norm_paths, case_sensitive, sep))
 
-    def iglob(self, pathname, with_matches=False, include_hidden=False, recursive=True,
-              norm_paths=True, case_sensitive=True, sep=None):
-        """Return an iterator which yields the paths matching a pathname
-        pattern.
+    def iglob(self, pathname, with_matches=False, include_hidden=False,
+              recursive=True, norm_paths=True, case_sensitive=True, sep=None):
+        """Return an iterator yielding the paths matching a pathname pattern.
 
-        The pattern may contain simple shell-style wildcards a la
-        fnmatch. However, unlike fnmatch, filenames starting with a
-        dot are special cases that are not matched by '*' and '?'
-        patterns.
+        :param pathname:
+            A string/byte pattern that may contain
+            simple shell-style wildcards a la fnmatch.
+        :param  with_matches:
+            if true, then for each matching path a 2-tuple will be returned;
+            the second element if the tuple will be a list of the parts
+            of the path that matched the individual wildcards.
+        :param include_hidden:
+            When true, filenames starting with a dot are matched by '*' and '?'
+            patterns.
+        :param recursive:
+            ignored, always implied; for API compatibility
+        :param norm_paths:
+            A tri-state boolean:
+            when true, invokes `os.path,.normcase()` on both paths,
+            when `None`, just equalize slashes/backslashes to `os.sep`,
+            when false, does not touch paths at all.
+
+            Note that a side-effect of `normcase()` on *Windows* is that
+            it converts to lower-case all matches of `?glob()` functions.
+        :param case_sensitive:
+            defines the case-sensitiviness of regex doing the matches
+        :param sep:
+            in case only slahes replaced, what sep-char to substitute with;
+            if false, `os.sep` is used.
+        :return:
+            strings or bytes, depending on the `patterns
 
         If ``with_matches`` is True, then for each matching path
         a 2-tuple will be returned; the second element if the tuple
         will be a list of the parts of the path that matched the individual
         wildcards.
-
-        If ``include_hidden`` is True, then files and folders starting with
-        a dot are also returned.
         """
         result = self._iglob(pathname, True, include_hidden,
                              norm_paths, case_sensitive, sep)
