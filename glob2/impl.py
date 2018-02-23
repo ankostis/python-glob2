@@ -173,8 +173,7 @@ class Globber(object):
 
     def resolve_pattern(self, dirname, pattern, globstar_with_root, include_hidden,
                         norm_paths, case_sensitive, sep):
-        """Apply ``pattern`` (contains no path elements) to the
-        literal directory in ``dirname``.
+        """Apply `pattern` (contains no path elements) to the literal directory in `dirname`.
 
         If pattern=='', this will filter for directories. This is
         a special case that happens when the user's glob expression ends
@@ -182,9 +181,9 @@ class Globber(object):
         and faster to filter here than in :meth:`_iglob`.
         """
 
-        if sys.version_info[0] == 3:
+        if sys.version_info[0] > 2:
             if isinstance(pattern, bytes):
-                dirname = bytes(os.curdir, 'ASCII')
+                dirname = os.curdir.encode('ASCII')
         else:
             if isinstance(pattern, unicode) and not isinstance(dirname, unicode):
                 dirname = unicode(dirname, sys.getfilesystemencoding() or
