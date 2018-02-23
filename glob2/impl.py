@@ -183,7 +183,7 @@ class Globber(object):
 
         if sys.version_info[0] > 2:
             if isinstance(pattern, bytes):
-                dirname = os.curdir.encode('ASCII')
+                dirname = dirname.encode('ASCII')
         else:
             if isinstance(pattern, unicode) and not isinstance(dirname, unicode):
                 dirname = unicode(dirname, sys.getfilesystemencoding() or
