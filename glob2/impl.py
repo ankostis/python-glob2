@@ -33,9 +33,7 @@ class Globber(object):
         except os.error as err:
             return
 
-        items = []
-        for name in names:
-            items.append(name)
+        items = list(names)
 
         yield top, items
 
