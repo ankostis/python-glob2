@@ -19,6 +19,7 @@ except ImportError:
     imap = map
 
 
+PY2 = sys.version_info[0] < 3
 magic_check = re.compile('[*?[]')
 magic_check_bytes = re.compile(b'[*?[]')
 
@@ -306,13 +307,13 @@ class Globber(object):
         and faster to filter here than in :meth:`_iglob`.
         """
 
-        if sys.version_info[0] > 2:
-            if isinstance(pattern, bytes) and not isinstance(dirname, bytes):
-                dirname = dirname.encode('ASCII')
-        else:
+        if PY2:
             if isinstance(pattern, unicode) and not isinstance(dirname, unicode):
                 dirname = unicode(dirname, sys.getfilesystemencoding() or
                                            sys.getdefaultencoding())
+        else:
+            if isinstance(pattern, bytes) and not isinstance(dirname, bytes):
+                dirname = dirname.encode('ASCII')
 
         sep = self.sep
 
