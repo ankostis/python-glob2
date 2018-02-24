@@ -36,13 +36,6 @@ def _ishidden(path):
     return path[0] in ('.', b'.'[0])
 
 
-def _join_paths(paths, sep=None):
-    path = join(*paths)
-    if sep:
-        path = re.sub(r'[\\/]', sep, path)  # cached internally
-    return path
-
-
 def translate(pat):
     """Translate a shell PATTERN to a regular expression.
 
@@ -127,6 +120,20 @@ class Globber(object):
     islink = staticmethod(os.path.islink)
     exists = staticmethod(os.path.lexists)
 
+    def _sub_sep(self, path):
+        sep = self.sep
+        if sep is None:
+            return path
+        if sep is True:
+            sep = os.sep
+        if not PY2 and isinstance(path, bytes):
+            return re.sub(br'[\\/]', sep.encoce('ASCII'), path)
+        return re.sub(r'[\\/]', sep, path)
+
+    def _join_paths(self, paths):
+        path = join(*paths)
+        return self._sub_sep(path)
+
     def walk(self, top):
         """A simplified version of os.walk (code copied) that uses
         ``self.listdir``, and the other local filesystem methods.
@@ -144,7 +151,7 @@ class Globber(object):
         yield top, items
 
         for name in items:
-            new_path = _join_paths([top, name], sep=self.sep)
+            new_path = self._join_paths([top, name])
             if self.followlinks or not self.islink(new_path):
                 for x in self.walk(new_path):
                     yield x
@@ -182,11 +189,9 @@ class Globber(object):
         return match(name) is not None
 
     def _norm_paths(self, path):
-        if self.norm_paths is None:
-            path = re.sub(r'[\\/]', self.sep or os.sep , path)  # cached internally
-        elif self.norm_paths:
+        if self.norm_paths:
             path = os.path.normcase(path)
-        return path
+        return self._sub_sep(path)
 
     def fnmatch(self, name, pat):
         """Test whether FILENAME matches PATTERN.
@@ -296,7 +301,7 @@ class Globber(object):
         # Resolve ``basename`` expr for every directory found
         for dirname, dir_groups in dirs:
             for name, groups in self.resolve_pattern(dirname, basename, not rootcall):
-                yield _join_paths([dirname, name], sep=self.sep), dir_groups + groups
+                yield self._join_paths([dirname, name]), dir_groups + groups
 
     def resolve_pattern(self, dirname, pattern, globstar_with_root):
         """Apply `pattern` (contains no path elements) to the literal directory in `dirname`.
@@ -323,7 +328,7 @@ class Globber(object):
                 if self.isdir(dirname):
                     return [(pattern, ())]
             else:
-                if self.exists(_join_paths([dirname, pattern], sep=sep)):
+                if self.exists(self._join_paths([dirname, pattern])):
                     return [(pattern, ())]
             return []
 
@@ -337,8 +342,7 @@ class Globber(object):
                 # having to deal with os.path.normpath() later.
                 names = [''] if globstar_with_root else []
                 for top, entries in self.walk(dirname):
-                    _mkabs = lambda s: _join_paths([top[len(dirname) + 1:], s],
-                                                   sep=sep)
+                    _mkabs = lambda s: self._join_paths([top[len(dirname) + 1:], s])
                     names.extend(map(_mkabs, entries))
                 # Reset pattern so that fnmatch(), which does not understand
                 # ** specifically, will only return a single group match.
