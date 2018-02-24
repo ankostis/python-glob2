@@ -4,19 +4,20 @@ import shutil
 import tempfile
 
 import glob2
-from glob2 import fnmatch
 
+# Sep='/' so assertions works also on Windows.
+g = glob2.Globber(with_matches=True, sep='/')
 
 class TestFnmatch(object):
 
     def test_filter_everything(self):
         names = (
             'fooABC', 'barABC', 'foo',)
-        assert fnmatch.filter(names, 'foo*') == [
+        assert g.filter(names, 'foo*') == [
             ('fooABC', ('ABC',)),
             ('foo', ('',))
         ]
-        assert fnmatch.filter(names, '*AB*') == [
+        assert g.filter(names, '*AB*') == [
             ('fooABC', ('foo', 'C')),
             ('barABC', ('bar', 'C'))
         ]
@@ -24,10 +25,10 @@ class TestFnmatch(object):
     def test_filter_single_character(self):
         names = (
             'fooA', 'barA', 'foo',)
-        assert fnmatch.filter(names, 'foo?') == [
+        assert g.filter(names, 'foo?') == [
             ('fooA', ('A',)),
         ]
-        assert fnmatch.filter(names, '???A') == [
+        assert g.filter(names, '???A') == [
             ('fooA', ('f', 'o', 'o',)),
             ('barA', ('b', 'a', 'r',)),
         ]
@@ -35,11 +36,11 @@ class TestFnmatch(object):
     def test_sequence(self):
         names = (
             'fooA', 'fooB', 'fooC', 'foo',)
-        assert fnmatch.filter(names, 'foo[AB]') == [
+        assert g.filter(names, 'foo[AB]') == [
             ('fooA', ('A',)),
             ('fooB', ('B',)),
         ]
-        assert fnmatch.filter(names, 'foo[!AB]') == [
+        assert g.filter(names, 'foo[!AB]') == [
             ('fooC', ('C',)),
         ]
 
@@ -75,7 +76,7 @@ class TestPatterns(BaseTest):
         self.makedirs('dir1', 'dir22')
         self.touch(
             'dir1/a-file', 'dir1/b-file', 'dir22/a-file', 'dir22/b-file')
-        assert glob2.glob('dir?/a-*', True) == [
+        assert g.glob('dir?/a-*') == [
             ('dir1/a-file', ('1', 'file'))
         ]
 
@@ -89,7 +90,7 @@ class TestRecursive(BaseTest):
 
     def test_recursive(self):
         # ** includes the current directory
-        assert sorted(glob2.glob('**/*.py', True)) == [
+        assert sorted(g.glob('**/*.py')) == [
             ('a/bar.py', ('a', 'bar')),
             ('a/foo/hello.py', ('a/foo', 'hello')),
             ('b/bar.py', ('b', 'bar')),
@@ -99,7 +100,7 @@ class TestRecursive(BaseTest):
     def test_exclude_root_directory(self):
         # If files from the root directory should not be included,
         # this is the syntax to use:
-        assert sorted(glob2.glob('*/**/*.py', True)) == [
+        assert sorted(g.glob('*/**/*.py')) == [
             ('a/bar.py', ('a', '', 'bar')),
             ('a/foo/hello.py', ('a', 'foo', 'hello')),
             ('b/bar.py', ('b', '', 'bar'))
@@ -107,7 +108,7 @@ class TestRecursive(BaseTest):
 
     def test_only_directories(self):
         # Return directories only
-        assert sorted(glob2.glob('**/', True)) == [
+        assert sorted(g.glob('**/')) == [
             ('a/', ('a',)),
             ('a/foo/', ('a/foo',)),
             ('b/', ('b',)),
@@ -116,13 +117,13 @@ class TestRecursive(BaseTest):
     def test_parent_dir(self):
         # Make sure ".." can be used
         os.chdir(path.join(self.basedir, 'b'))
-        assert sorted(glob2.glob('../a/**/*.py', True)), [
+        assert sorted(g.glob('../a/**/*.py')), [
             ('../a/bar.py', ('', 'bar')),
             ('../a/foo/hello.py', ('foo', 'hello'))
         ]
 
     def test_fixed_basename(self):
-        assert sorted(glob2.glob('**/bar.py', True)) == [
+        assert sorted(g.glob('**/bar.py')) == [
             ('a/bar.py', ('a',)),
             ('b/bar.py', ('b',)),
         ]
@@ -130,7 +131,7 @@ class TestRecursive(BaseTest):
     def test_all_files(self):
         # Return all files
         os.chdir(path.join(self.basedir, 'a'))
-        assert sorted(glob2.glob('**', True)) == [
+        assert sorted(g.glob('**')) == [
             ('bar.py', ('bar.py',)),
             ('foo', ('foo',)),
             ('foo/hello.py', ('foo/hello.py',)),
@@ -142,14 +143,14 @@ class TestRecursive(BaseTest):
         # with ** as opposed to the dirname) does not cause
         # the root directory to be part of the result.
         # -> b/ is NOT in the result!
-        assert sorted(glob2.glob('b/**', True)) == [
+        assert sorted(g.glob('b/**')) == [
             ('b/bar.py', ('bar.py',)),
             ('b/py', ('py',)),
         ]
 
     def test_non_glob(self):
         # Test without patterns.
-        assert glob2.glob(__file__, True) == [
+        assert glob2.glob(__file__, with_matches=True) == [
             (__file__, ())
         ]
         assert glob2.glob(__file__) == [
@@ -166,7 +167,7 @@ class TestIncludeHidden(BaseTest):
 
     def test_hidden(self):
         # ** includes the current directory
-        assert sorted(glob2.glob('*/*', True, include_hidden=True)), [
+        assert sorted(glob2.glob('*/*', with_matches=True, include_hidden=True, sep='/')), [
             ('a/.bar', ('a', '.bar')),
             ('a/.foo', ('a', '.foo')),
             ('b/.bar', ('b', '.bar')),
