@@ -96,23 +96,19 @@ class Globber(object):
         When true, filenames starting with a dot are matched by '*' and '?'
         patterns.
     :ivar norm_paths:
-        A tri-state boolean:
-        when true, invokes `os.path,.normcase()` on both paths,
-        when `None`, just equalize slashes/backslashes to `os.sep`,
-        when false, does not touch paths at all.
+        when true, invokes `os.path,.normcase()` on both paths.
 
         Note that a side-effect of `normcase()` on *Windows* is that
         it converts to lower-case all matches of `?glob()` functions.
     :ivar case_sensitive:
         defines the case-sensitiviness of regex doing the matches
     :ivar sep:
-        in case only slahes replaced, what sep-char to substitute with;
-        if false, `os.sep` is used.
+        If given, all (back)slahes are replaced with ``os.sep`` (if True),
+        or the given char.
 
-    Notice that by default, `normcase()` causes insensitive matching
-    on *Windows*, regardless of `case_insensitive` param.
-    Set ``norm_paths=None, case_sensitive=False`` to preserve
-    verbatim mathces and still behaves like Windows.
+    Notice that if `normcase()` is used to achieve case-insensitivity,
+    on Windows, it side-eefects switching the case of captured matches!
+    So prefer using ``case_insensitive=False``.
     """
 
     listdir = staticmethod(os.listdir)
@@ -207,26 +203,6 @@ class Globber(object):
         Both FILENAME and PATTERN are first case-normalized
         if the operating system requires it.
         If you don't want this, use fnmatchcase(FILENAME, PATTERN).
-
-        :param slashes:
-        :param norm_paths:
-            A tri-state boolean:
-            when true, invokes `os.path,.normcase()` on both paths,
-            when `None`, just equalize slashes/backslashes to `os.sep`,
-            when false, does not touch paths at all.
-
-            Note that a side-effect of `normcase()` on *Windows* is that
-            it converts to lower-case all matches of `?glob()` functions.
-        :param case_sensitive:
-            defines the case-sensitiviness of regex doing the matches
-        :param sep:
-            in case only slahes replaced, what sep-char to substitute with;
-            if false, `os.sep` is used.
-
-        Notice that by default, `normcase()` causes insensitive matching
-        on *Windows*, regardless of `case_insensitive` param.
-        Set ``norm_paths=None, case_sensitive=False`` to preserve
-        verbatim mathces.
         """
         name, pat = [self._norm_paths(p) for p in (name, pat)]
 
@@ -376,26 +352,22 @@ def glob(pathname, **kw):
     :param recursive:
         ignored, always implied; for API compatibility
     :param norm_paths:
-        A tri-state boolean:
-        when true, invokes `os.path,.normcase()` on both paths,
-        when `None`, just equalize slashes/backslashes to `os.sep`,
-        when false, does not touch paths at all.
+        when true, invokes `os.path,.normcase()` on both paths.
 
         Note that a side-effect of `normcase()` on *Windows* is that
         it converts to lower-case all matches of `?glob()` functions.
     :param case_sensitive:
         defines the case-sensitiviness of regex doing the matches
-        [default: False on Windows / True elsewhere]
     :param sep:
-        in case only slahes replaced, what sep-char to substitute with;
-        if false, `os.sep` is used.
+        If given, all (back)slahes are replaced with ``os.sep`` (if True),
+        or the given char.
+
     :return:
         strings or bytes, depending on the `patterns
 
-    Notice that by default, `normcase()` causes insensitive matching
-    on *Windows*, regardless of `case_insensitive` param.
-    Set ``norm_paths=None, case_sensitive=False`` to preserve
-    verbatim mathces.
+    Notice that if `normcase()` is used to achieve case-insesitivity,
+    on Windows, it side-eefects switching the case of captured matches!
+    So prefer using ``case_insensitive=False``.
     """
     return list(iglob(pathname, **kw))
 
@@ -415,24 +387,21 @@ def iglob(pathname, **kw):
     :param recursive:
         ignored, always implied; for API compatibility
     :param norm_paths:
-        A tri-state boolean:
-        when true, invokes `os.path,.normcase()` on both paths,
-        when `None`, just equalize slashes/backslashes to `os.sep`,
-        when false, does not touch paths at all.
+        when true, invokes `os.path,.normcase()` on both paths.
 
         Note that a side-effect of `normcase()` on *Windows* is that
         it converts to lower-case all matches of `?glob()` functions.
     :param case_sensitive:
         defines the case-sensitiviness of regex doing the matches
     :param sep:
-        in case only slahes replaced, what sep-char to substitute with;
-        if false, `os.sep` is used.
-    :return:
-        strings or bytes, depending on the `patterns
+        If given, all (back)slahes are replaced with ``os.sep`` (if True),
+        or the given char.
 
-    Notice that by default, `normcase()` causes insensitive matching
-    on *Windows*, regardless of `case_insensitive` param.
-    Set ``norm_paths=None, case_sensitive=False`` to preserve
-    verbatim mathces.
+    :return:
+        a generator of strings or bytes, depending on the `patterns
+
+    Notice that if `normcase()` is used to achieve case-insesitivity,
+    on Windows, it side-eefects switching the case of captured matches!
+    So prefer using ``case_insensitive=False``.
     """
     return Globber(**kw).iglob(pathname)
