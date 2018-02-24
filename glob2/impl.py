@@ -307,7 +307,7 @@ class Globber(object):
         """
 
         if sys.version_info[0] > 2:
-            if isinstance(pattern, bytes):
+            if isinstance(pattern, bytes) and not isinstance(dirname, bytes):
                 dirname = dirname.encode('ASCII')
         else:
             if isinstance(pattern, unicode) and not isinstance(dirname, unicode):
