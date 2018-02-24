@@ -42,7 +42,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries',
         ],
-    packages = find_packages(),
+    packages = find_packages(exclude=['tests']),
     extras_require={
         'test': test_requirements,
     },

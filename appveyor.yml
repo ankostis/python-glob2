@@ -25,4 +25,4 @@ install:
   - "%CMD_IN_ENV%  pip install -e .[test]"
 
 test_script:
-  - "%CMD_IN_ENV%  pytest --pyargs -v test.py"
+  - "%CMD_IN_ENV%  pytest -v"
