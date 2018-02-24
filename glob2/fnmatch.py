@@ -21,7 +21,7 @@ __all__ = ["filter", "fnmatch", "fnmatchcase", "translate"]
 
 def _norm_paths(path, norm_paths, sep):
     if norm_paths is None:
-        path = re.sub(r'\/', sep or os.sep, path)  # cached internally
+        path = re.sub(r'[\\/]', sep or os.sep, path)  # cached internally
     elif norm_paths:
         path = os.path.normcase(path)
     return path

@@ -252,6 +252,6 @@ def _ishidden(path):
 def _join_paths(paths, sep=None):
     path = join(*paths)
     if sep:
-        path = re.sub(r'\/', sep, path)  # cached internally
+        path = re.sub(r'[\\/]', re.escape(sep), path)  # cached internally
     return path
 
